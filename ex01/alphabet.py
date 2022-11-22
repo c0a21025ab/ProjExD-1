@@ -26,6 +26,7 @@ def shutudai(alpha):
 
     return abs_mozi
 
+
     
 def kaitou(abs_mozi):
     num = int(input("欠損文字はいくつあるでしょうか： "))
