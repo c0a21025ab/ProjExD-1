@@ -16,9 +16,7 @@ def shutudai(alpha):
 
 
     abs_mozi = random.sample(taishou, kesson)
-    print("欠損文字（デバッグ用）：")
-    for m in abs_mozi:
-        print(m, end=" ")
+   
     
     print("表示文字：")
     for m in taishou:
