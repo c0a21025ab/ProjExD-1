@@ -15,6 +15,11 @@ def button_click(event):
         # 練習６
         entry.insert(tk.END, num)
 
+#クリックしたときエントリ内を削除
+def reset_button_click(event):
+    # btn = event.widget
+    entry.delete(0, tk.END)
+
     
 # 練習１
 root = tk.Tk()
@@ -35,6 +40,12 @@ for num in range(9, -1, -1):
         r += 1
         c = 0
 
+#リセットボタンC
+reset_button = tk.Button(root, text="C", width=4, height=2, font=("", 30), bg="#fff")
+reset_button.grid(row=r+1, column=0)
+reset_button.bind("<1>", reset_button_click)
+
+
 # 練習５
 operators = ["+", "-", "*", "/", "="]
 r = 1 #高さをリセット
@@ -46,5 +57,7 @@ for ope in operators:
     # if c%3 == 0:
     #     r += 1
     #     c = 0
+
+
 
 root.mainloop()
