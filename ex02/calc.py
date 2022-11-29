@@ -11,8 +11,7 @@ def button_click(event):
         entry.insert(tk.END, res) # 結果の挿入
 
     elif num == "00": #00を入力したときに0にされないようにしたかった
-        entry.insert(tk.END, "0")
-        entry.insert(tk.END, "0")
+        entry.insert(tk.END, "00")
 
     elif num == "×": #掛け算
         entry.insert(tk.END, "*")
