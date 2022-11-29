@@ -18,7 +18,7 @@ def button_click(event):
     
 # 練習１
 root = tk.Tk()
-root.geometry("300x500")
+root.geometry("300x700")
 
 # 練習４
 entry = tk.Entry(root, justify="right", width=10, font=("",40))
@@ -36,7 +36,7 @@ for num in range(9, -1, -1):
         c = 0
 
 # 練習５
-operators = ["+", "="]
+operators = ["+", "-", "*", "/", "="]
 for ope in operators:
     button = tk.Button(root, text=f"{ope}", width=4, height=2, font=("", 30))
     button.grid(row=r, column=c)
