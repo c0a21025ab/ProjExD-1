@@ -10,7 +10,7 @@ def key_up(event):
     key = ""
 
 def main_proc(tag_inf): #引数でタグ情報を入手
-    global cx, cy, mx, my
+    global mx, my
     kouka_form = "" #キー入力で得られるタグの情報を保持する変数
     if key == "Up": 
         my -= 1
