@@ -42,7 +42,7 @@ def main_proc(tag_inf): #引数でタグ情報を入手
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("迷えるこうかとん")
-    canvas = tk.Canvas(root, width=1500, height=900, bg="black")
+    canvas = tk.Canvas(root, width=1500, height=900, bg="red2")
 
 
     #こうかとんフォルムチェンジ用imegeオブジェクト作成
