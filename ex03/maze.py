@@ -62,8 +62,6 @@ if __name__ == "__main__":
     maze_lst = mm.make_maze(15, 9)
     mm.show_maze(canvas, maze_lst)
     canvas.create_image(cx, cy, image=de_koukaton, tag="koukaton")
-
-
     canvas.pack()
     
     key = ""
