@@ -15,18 +15,20 @@ def main_proc(tag_inf): #引数でタグ情報を入手
     if key == "Up": 
         my -= 1
         kouka_form = up_koukaton #キーが上の時の場合のタグ情報を保持
-        canvas.delete(f"{tag_inf}") #タグ指定し、移動前のこうかとんを削除
+  
     if key == "Down":
         my += 1
         kouka_form = dw_koukaton
-        canvas.delete(f"{tag_inf}") #タグ指定し、移動前のこうかとんを削除
+
     if key == "Left": 
         mx -= 1
         kouka_form = le_koukaton
-        canvas.delete(f"{tag_inf}") #タグ指定し、移動前のこうかとんを削除
+    
     if key == "Right": 
         mx += 1
         kouka_form = ri_koukaton
+       
+    if key:
         canvas.delete(f"{tag_inf}") #タグ指定し、移動前のこうかとんを削除
     if maze_lst[mx][my] == 1: # 移動先が壁だったら
         if key == "Up": my += 1
