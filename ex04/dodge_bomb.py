@@ -63,7 +63,7 @@ def main():
 
 
 
-    vx, vy = +1, +1
+    vx1, vy1 = +1, +1
     vx2, vy2 = +1, +1
 
     while True:
@@ -99,12 +99,12 @@ def main():
             mode_2bomb = False
         
         scrn_sfc.blit(tori_sfc, tori_rct)
-        bomb_rct.move_ip(vx, vy)
+        bomb_rct.move_ip(vx1, vy1)
         scrn_sfc.blit(bomb_sfc, bomb_rct)
         
         yoko, tate = check_bound(bomb_rct, scrn_rct)
-        vx *= yoko
-        vy *= tate
+        vx1 *= yoko
+        vy1 *= tate
         # (new)キー２が入力されたときに爆弾を二つに増やす
         if mode_2bomb:
             scrn_sfc.blit(bomb2_sfc, bomb2_rct)
