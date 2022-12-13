@@ -17,6 +17,7 @@ def check_bound(obj_rct, scr_rct):
 
 
 def main():
+    bgn = time.time()
     clock = pg.time.Clock()
 
     mode_2bomb = False # 爆弾２個モード変数
@@ -113,7 +114,7 @@ def main():
             vy2 *= tate
         ##
 
-        if tori_rct.colliderect(bomb_rct) | tori_rct.colliderect(bomb2_rct) and mode_2bomb:
+        if tori_rct.colliderect(bomb_rct) or (tori_rct.colliderect(bomb2_rct) and mode_2bomb):
             # (new)こうかとんが爆弾に触れた位置で画像を切り替える
             end_rct.centerx = tori_rct.centerx # こうかとんの位置と等しくする
             end_rct.centery = tori_rct.centery
@@ -124,10 +125,20 @@ def main():
             font = pg.font.Font(None, 200)
             text = font.render("GAME OVER", True, (255,0,0))
             scrn_sfc.blit(text, [400, 400])
+
+            # (new)経過時間表示
+            font = pg.font.Font(None, 100)
+            end = time.time()
+            ever_time = end - bgn
+            time_text = font.render(f"time:{round(ever_time)} ", True, (255,0,0))
+            scrn_sfc.blit(time_text, [0, 0])
+
             pg.display.update()
             time.sleep(3) #　画像切り替え3秒後にウィンドウを閉じる
             ##
             return
+        
+       
 
         pg.display.update()
         clock.tick(1000)
