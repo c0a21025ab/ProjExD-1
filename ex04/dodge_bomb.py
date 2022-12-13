@@ -19,6 +19,8 @@ def check_bound(obj_rct, scr_rct):
 def main():
     clock = pg.time.Clock()
 
+    mode_2bomb = False # 爆弾２個モード変数
+
 
     pg.display.set_caption("逃げろ！こうかとん")
     scrn_sfc = pg.display.set_mode((1600,900))
@@ -48,7 +50,20 @@ def main():
     bomb_rct.centerx = random.randint(0, scrn_rct.width)
     bomb_rct.centery = random.randint(0, scrn_rct.height)
     scrn_sfc.blit(bomb_sfc, bomb_rct)
+
+    # (new)爆弾ふやす
+    bomb2_sfc = pg.Surface((20,20))
+    bomb2_sfc.set_colorkey((0,0,0))
+    pg.draw.circle(bomb2_sfc, (255, 0, 0,), (10, 10), 10)
+    bomb2_rct = bomb_sfc.get_rect()
+    bomb2_rct.centerx = random.randint(0, scrn_rct.width)
+    bomb2_rct.centery = random.randint(0, scrn_rct.height)
+    ##
+
+
+
     vx, vy = +1, +1
+    vx2, vy2 = +1, +1
 
     while True:
         scrn_sfc.blit(pgbg_sfc, pgbg_rct)
@@ -75,21 +90,40 @@ def main():
                 tori_rct.centerx += 1
             if key_dct[pg.K_RIGHT]:
                 tori_rct.centerx -= 1
+
+        # キー入力によるモード切り替え
+        if key_dct[pg.K_2]:
+            mode_2bomb = True
+        if key_dct[pg.K_1]:
+            mode_2bomb = False
+        
         scrn_sfc.blit(tori_sfc, tori_rct)
-
-
-    
         bomb_rct.move_ip(vx, vy)
         scrn_sfc.blit(bomb_sfc, bomb_rct)
+        
         yoko, tate = check_bound(bomb_rct, scrn_rct)
         vx *= yoko
         vy *= tate
+        # (new)キー２が入力されたときに爆弾を二つに増やす
+        if mode_2bomb:
+            scrn_sfc.blit(bomb2_sfc, bomb2_rct)
+            bomb2_rct.move_ip(vx2, vy2)
+            yoko, tate = check_bound(bomb2_rct, scrn_rct)
+            vx2 *= yoko
+            vy2 *= tate
+        ##
 
-        if tori_rct.colliderect(bomb_rct):
+        if tori_rct.colliderect(bomb_rct) | tori_rct.colliderect(bomb2_rct) and mode_2bomb:
             # (new)こうかとんが爆弾に触れた位置で画像を切り替える
             end_rct.centerx = tori_rct.centerx # こうかとんの位置と等しくする
             end_rct.centery = tori_rct.centery
             scrn_sfc.blit(end_sfc, end_rct)
+            ##
+
+            # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
+            font = pg.font.Font(None, 200)
+            text = font.render("GAME OVER", True, (255,0,0))
+            scrn_sfc.blit(text, [400, 400])
             pg.display.update()
             time.sleep(3) #　画像切り替え3秒後にウィンドウを閉じる
             ##
