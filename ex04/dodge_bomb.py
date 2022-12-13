@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 import random
-
+import time
 
 
 def check_bound(obj_rct, scr_rct):
@@ -25,6 +25,14 @@ def main():
     scrn_rct = scrn_sfc.get_rect()
     pgbg_sfc = pg.image.load("fig/pg_bg.jpg")
     pgbg_rct = pgbg_sfc.get_rect()
+
+    # (new)着弾時切り替え用の画像サーフェイスの作成
+    end_sfc = pg.image.load("fig/bakuhatu.png")
+    end_sfc = pg.transform.rotozoom(end_sfc, 0, 2.0)
+    end_sfc = pg.transform.scale(end_sfc, (500, 500)) # 画像を縮小
+    end_rct = end_sfc.get_rect()
+    end_rct.center = 900, 400
+    ##
 
 
     tori_sfc = pg.image.load("fig/6.png")
@@ -78,6 +86,13 @@ def main():
         vy *= tate
 
         if tori_rct.colliderect(bomb_rct):
+            # (new)こうかとんが爆弾に触れた位置で画像を切り替える
+            end_rct.centerx = tori_rct.centerx # こうかとんの位置と等しくする
+            end_rct.centery = tori_rct.centery
+            scrn_sfc.blit(end_sfc, end_rct)
+            pg.display.update()
+            time.sleep(3) #　画像切り替え3秒後にウィンドウを閉じる
+            ##
             return
 
         pg.display.update()
