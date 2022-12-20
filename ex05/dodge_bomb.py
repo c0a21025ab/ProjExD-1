@@ -1,6 +1,7 @@
 import pygame as pg
 import random
 import sys
+import time
 
 
 class Screen:
@@ -41,7 +42,17 @@ class Bird:
             if check_bound(self.rct, scr.rct) != (+1, +1):
                 self.rct.centerx -= delta[0]
                 self.rct.centery -= delta[1]
-        self.blit(scr)                    
+        self.blit(scr)            
+
+    # 画像のサイズを変える
+    def scale(self, size): #sizeは要素２のタプル(建て,横)
+        self.sfc = pg.transform.scale(self.sfc, size)
+        self.src = self.sfc.get_rect()
+        self.rct.center = 900, 400
+        
+        
+        
+
 
 
 class Bomb:
@@ -63,6 +74,13 @@ class Bomb:
         self.vx *= yoko
         self.vy *= tate
         self.blit(scr)
+
+    
+
+    # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
+    # font = pg.font.Font(None, 200)
+    # text = font.render("GAME OVER", True, (255,0,0))
+    # scrn_sfc.blit(text, [400, 400])
 
 
 def check_bound(obj_rct, scr_rct):
@@ -93,7 +111,7 @@ def main():
     bkd = Bomb((255, 0, 0), 10, (+1, +1), scr)
     bkd.update(scr)
     
-    #爆弾を増やすraise_bomb
+    # 爆弾を増やすraise_bomb
     bombs = []
     colors = ["red", "green", "blue", "yellow", "magenta"]
 
@@ -102,6 +120,11 @@ def main():
         vx = random.choice([-1, +1])
         vy = random.choice([-1, +1])
         bombs.append(Bomb(color, 10, (vx, vy), scr))
+
+    # 被弾こうかとん
+    end_kkt = Bird("fig/bakuhatu.png", 2.0, (900,400))
+    end_kkt.scale((500, 500)) #サイズを変えると、位置がおかしくなってしまう
+    
 
     kkt.update(scr)
     for bomb in bombs:
@@ -121,6 +144,14 @@ def main():
         for bomb in bombs:
             bomb.update(scr)
             if kkt.rct.colliderect(bomb.rct):
+                # こうかとんが爆弾に触れた位置で画像を切り替える
+                end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
+                end_kkt.rct.centery = kkt.rct.centery
+                end_kkt.blit(scr)
+                # end_kkt.update(scr)
+                pg.display.update()
+                time.sleep(3)
+                ##
                 return
 
         pg.display.update()
