@@ -105,11 +105,6 @@ class Text: # テキストをスクリーンに描画するクラス
 
     def blit(self, posi, scr):
         scr.sfc.blit(self.text, posi)
-        
-
-    
-
-    
 
 
 def check_bound(obj_rct, scr_rct):
