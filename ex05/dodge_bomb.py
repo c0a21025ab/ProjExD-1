@@ -98,13 +98,18 @@ class Item:
         self.vy *= tate
         self.blit(scr)
 
+class Text: # テキストをスクリーンに描画するクラス
+    def __init__(self, font, size, txt, color):
+        self.font = pg.font.Font(font, size)
+        self.text = self.font.render(txt, True, color)
+
+    def blit(self, posi, scr):
+        scr.sfc.blit(self.text, posi)
+        
 
     
 
-    # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
-    # font = pg.font.Font(None, 200)
-    # text = font.render("GAME OVER", True, (255,0,0))
-    # scrn_sfc.blit(text, [400, 400])
+    
 
 
 def check_bound(obj_rct, scr_rct):
@@ -168,7 +173,15 @@ def main():
     # アイテム生成
     for item in items:
         item.update(scr)
-        
+
+    # テキスト生成
+    text = Text(None, 200, "GAME OVER", (255, 0, 0))
+    # テキストを描画
+    text.blit([400, 400], scr)
+    # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
+    # font = pg.font.Font(None, 200)
+    # text = font.render("GAME OVER", True, (255,0,0))
+    # scrn_sfc.blit(text, [400, 400])
 
     # 練習２
     while True:        
@@ -187,7 +200,9 @@ def main():
                 end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                 end_kkt.rct.centery = kkt.rct.centery
                 end_kkt.blit(scr)
-                # end_kkt.update(scr)
+                # テキストを描画
+                text.blit([400, 400], scr)
+                
                 pg.display.update()
                 time.sleep(3)
                 ##
