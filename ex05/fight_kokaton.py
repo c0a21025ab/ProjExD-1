@@ -51,10 +51,6 @@ class Bird:
         self.src = self.sfc.get_rect()
         self.rct.center = 900, 400
         
-        
-        
-
-
 
 class Bomb:
     def __init__(self, color, rad, vxy, scr:Screen):
