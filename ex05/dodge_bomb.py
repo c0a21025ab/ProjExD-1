@@ -29,6 +29,7 @@ class Bird:
         self.sfc = pg.transform.rotozoom(self.sfc, 0, ratio)
         self.rct = self.sfc.get_rect()
         self.rct.center = xy
+        self.fight = False # 戦闘モード
 
     def blit(self, scr:Screen):
         scr.sfc.blit(self.sfc, self.rct)
@@ -64,6 +65,7 @@ class Bomb:
         self.rct.centerx = random.randint(0, scr.rct.width)
         self.rct.centery = random.randint(0, scr.rct.height)
         self.vx, self.vy = vxy
+        self.enemy = True #敵かどうか
 
     def blit(self, scr:Screen):
         scr.sfc.blit(self.sfc, self.rct)
@@ -74,6 +76,28 @@ class Bomb:
         self.vx *= yoko
         self.vy *= tate
         self.blit(scr)
+
+class Item:
+    def __init__(self, color, rad, vxy, scr:Screen):
+        self.sfc = pg.Surface((2*rad, 2*rad)) # 正方形の空のSurface
+        self.sfc.set_colorkey((0, 0, 0))
+        pg.draw.circle(self.sfc, color, (rad, rad), rad)
+        self.rct = self.sfc.get_rect()
+        self.rct.centerx = random.randint(0, scr.rct.width)
+        self.rct.centery = random.randint(0, scr.rct.height)
+        self.vx, self.vy = vxy
+        self.used = False #使われたかどうか
+
+    def blit(self, scr:Screen):
+        scr.sfc.blit(self.sfc, self.rct)
+
+    def update(self, scr:Screen):
+        self.rct.move_ip(self.vx, self.vy)
+        yoko, tate = check_bound(self.rct, scr.rct)
+        self.vx *= yoko
+        self.vy *= tate
+        self.blit(scr)
+
 
     
 
@@ -123,7 +147,16 @@ def main():
 
     # 被弾こうかとん
     end_kkt = Bird("fig/bakuhatu.png", 2.0, (900,400))
-    end_kkt.scale((500, 500)) #サイズを変えると、位置がおかしくなってしまう
+    # end_kkt.scale((500, 500)) #サイズを変えると、位置がおかしくなってしまう
+
+    # こうかとん強化アイテム生成
+    items = []
+
+    for i in range(2):
+        color = "white"
+        vx = random.choice([-1, +1])
+        vy = random.choice([-1, +1])
+        items.append(Item(color, 10, (vx, vy), scr))
     
 
     kkt.update(scr)
@@ -131,6 +164,11 @@ def main():
         bomb.update(scr)
         if kkt.rct.colliderect(bomb.rct):
             return
+
+    # アイテム生成
+    for item in items:
+        item.update(scr)
+        
 
     # 練習２
     while True:        
@@ -142,8 +180,9 @@ def main():
 
         kkt.update(scr)
         for bomb in bombs:
-            bomb.update(scr)
-            if kkt.rct.colliderect(bomb.rct):
+            if bomb.enemy is True:
+                bomb.update(scr)
+            if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
                 # こうかとんが爆弾に触れた位置で画像を切り替える
                 end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                 end_kkt.rct.centery = kkt.rct.centery
@@ -153,6 +192,19 @@ def main():
                 time.sleep(3)
                 ##
                 return
+            # こうかとんが敵を倒す
+            elif kkt.rct.colliderect(bomb.rct) and (kkt.fight is True): #戦闘モード時に爆弾に触れると
+                bomb.enemy = False # 触れたボムの敵判定をなくす（倒した）
+
+        # アイテムを使った時の処理
+        for item in items:
+            if item.used is False: #　使用済みアイテムならアップデートしない
+                item.update(scr)
+            if kkt.rct.colliderect(item.rct) and (item.used is False): # kktが未使用アイテムに触れたら
+                kkt.fight = True # こうかとん戦闘モードに移行
+                item.used = True # そのアイテムは使用済み判定に変わる
+
+
 
         pg.display.update()
         clock.tick(1000)
