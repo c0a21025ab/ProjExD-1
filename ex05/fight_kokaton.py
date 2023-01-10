@@ -103,6 +103,7 @@ class Text: # テキストをスクリーンに描画するクラス
         scr.sfc.blit(self.text, posi)
 
 
+
 def check_bound(obj_rct, scr_rct):
     """
     第1引数：こうかとんrectまたは爆弾rect
@@ -116,9 +117,20 @@ def check_bound(obj_rct, scr_rct):
         tate = -1
     return yoko, tate
 
+# 敵を全員倒したかをチェックする
+def check_clear(num_dead_enem, total_num_enem): # (死んだ敵の数, 敵の総数)
+    if num_dead_enem == total_num_enem:
+        return True
+    else:
+        return False
+
+
+
+
 
 def main():
     clock =pg.time.Clock()
+    bgn = time.time()
 
     # 練習１
     scr = Screen("逃げろ！こうかとん", (1600,900), "fig/pg_bg.jpg")
@@ -131,11 +143,12 @@ def main():
     bkd = Bomb((255, 0, 0), 10, (+1, +1), scr)
     bkd.update(scr)
     
-    # 爆弾を増やすraise_bomb
+    # 爆弾（敵）を増やすraise_bomb
     bombs = []
     colors = ["red", "green", "blue", "yellow", "magenta"]
+    total_num_enem = len(colors) #敵の総数
 
-    for i in range(5):
+    for i in range(total_num_enem):
         color = colors[i]
         vx = random.choice([-1, +1])
         vy = random.choice([-1, +1])
@@ -165,14 +178,27 @@ def main():
     for item in items:
         item.update(scr)
 
-    # テキスト生成
+    # テキスト生成（ゲームオーバー）
     text = Text(None, 200, "GAME OVER", (255, 0, 0))
     # テキストを描画
     text.blit([400, 400], scr)
+
+    # テキスト生成（クリア）
+    clear_txt = Text(None, 200, "GAME CLEAR", (255, 255, 255))
+    # テキスト描画
+    clear_txt.blit([400, 400], scr)
+
+    # テキスト生成(こうかとんモードチェンジ時)
+    fight_txt = Text(None, 200, "FIGHTING MODE!!", (255, 0, 0))
+
     # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
     # font = pg.font.Font(None, 200)
     # text = font.render("GAME OVER", True, (255,0,0))
     # scrn_sfc.blit(text, [400, 400])
+
+    
+    num_dead_enem = 0         # 敵を倒した数をカウント
+    fighting_time_left = 2000 # 戦闘モードの残り時間
 
     # 練習２
     while True:        
@@ -199,8 +225,9 @@ def main():
                 ##
                 return
             # こうかとんが敵を倒す
-            elif kkt.rct.colliderect(bomb.rct) and (kkt.fight is True): #戦闘モード時に爆弾に触れると
+            elif kkt.rct.colliderect(bomb.rct) and (kkt.fight is True) and (bomb.enemy is True): #戦闘モード時に爆弾に触れると
                 bomb.enemy = False # 触れたボムの敵判定をなくす（倒した）
+                num_dead_enem += 1    # 敵の死亡数を１増やす
 
         # アイテムを使った時の処理
         for item in items:
@@ -209,6 +236,40 @@ def main():
             if kkt.rct.colliderect(item.rct) and (item.used is False): # kktが未使用アイテムに触れたら
                 kkt.fight = True # こうかとん戦闘モードに移行
                 item.used = True # そのアイテムは使用済み判定に変わる
+
+        # 戦闘モードこうかとん残り時間処理
+        if kkt.fight is True:
+            fighting_time_left -= 1
+            # fight_time_txt = Text(None, 200, f"fight:{fighting_time_left}", (0, 0, 0)) 
+            # fight_time_txt.blit([0, 500], scr)
+            # if fighting_time_left % 10000 == 0:
+            #     pg.display.update()
+
+            if fighting_time_left == 0: #　もし戦闘モードが終わったら
+                kkt.fight = False
+                # 強化アイテム生成
+                color = "white"
+                vx = random.choice([-1, +1])
+                vy = random.choice([-1, +1])
+                item = Item(color, 10, (vx, vy), scr)
+                item.update(scr)
+                print("アイテム生成")
+
+
+
+        # 敵をすべて消した時の処理
+        if check_clear(num_dead_enem, total_num_enem): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
+                end = time.time()
+                clear_time = end - bgn #クリアタイム
+                # テキストを描画
+                clear_txt.blit([400, 400], scr)
+                # テキスト生成（クリア）
+                time_txt = Text(None, 200, f"time:{round(clear_time)}", (0, 0, 0)) 
+                time_txt.blit([0, 0], scr)
+                pg.display.update()
+                time.sleep(3)
+                ##
+                return
 
 
 
