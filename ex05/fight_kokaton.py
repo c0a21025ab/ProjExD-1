@@ -18,10 +18,10 @@ class Screen:
 
 class Bird:
     key_delta = {
-        pg.K_UP:    [0, -1],
-        pg.K_DOWN:  [0, +1],
-        pg.K_LEFT:  [-1, 0],
-        pg.K_RIGHT: [+1, 0],
+        pg.K_UP:    [0, -3],
+        pg.K_DOWN:  [0, +3],
+        pg.K_LEFT:  [-3, 0],
+        pg.K_RIGHT: [+3, 0],
     }
 
     def __init__(self, img_path, ratio, xy):
@@ -50,7 +50,6 @@ class Bird:
         self.sfc = pg.transform.scale(self.sfc, size)
         self.src = self.sfc.get_rect()
         self.rct.center = 900, 400
-        
 
 class Bomb:
     def __init__(self, color, rad, vxy, scr:Screen):
@@ -150,9 +149,10 @@ def main():
 
     for i in range(total_num_enem):
         color = colors[i]
-        vx = random.choice([-1, +1])
-        vy = random.choice([-1, +1])
-        bombs.append(Bomb(color, 10, (vx, vy), scr))
+        vx = random.choice([-3,-2,-1,+1,+2,+3])
+        vy = random.choice([-3,-2,-1,+1,+2,+3])
+        r = random.randint(30,50)
+        bombs.append(Bomb(color, r, (vx, vy), scr))
 
     # 被弾こうかとん
     end_kkt = Bird("fig/bakuhatu.png", 2.0, (900,400))
@@ -191,6 +191,10 @@ def main():
     # テキスト生成(こうかとんモードチェンジ時)
     fight_txt = Text(None, 200, "FIGHTING MODE!!", (255, 0, 0))
 
+    g_time = 0
+    
+    life = 999
+    
     # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
     # font = pg.font.Font(None, 200)
     # text = font.render("GAME OVER", True, (255,0,0))
@@ -209,21 +213,24 @@ def main():
                 return
 
         kkt.update(scr)
+
         for bomb in bombs:
             if bomb.enemy is True:
                 bomb.update(scr)
-            if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
+            if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True) and g_time > 2: #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
                 # こうかとんが爆弾に触れた位置で画像を切り替える
-                end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
-                end_kkt.rct.centery = kkt.rct.centery
-                end_kkt.blit(scr)
-                # テキストを描画
-                text.blit([400, 400], scr)
-                
-                pg.display.update()
-                time.sleep(3)
-                ##
-                return
+                life -= 9
+                if life < 0:
+                    end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
+                    end_kkt.rct.centery = kkt.rct.centery
+                    end_kkt.blit(scr)
+                    # テキストを描画
+                    text.blit([400, 300], scr)
+                    time_txt = Text(None, 200, "time:"+str(int(g_time)), (0, 0, 0)) 
+                    time_txt.blit([600, 500], scr)
+                    pg.display.update()
+                    time.sleep(3)
+                    return
             # こうかとんが敵を倒す
             elif kkt.rct.colliderect(bomb.rct) and (kkt.fight is True) and (bomb.enemy is True): #戦闘モード時に爆弾に触れると
                 bomb.enemy = False # 触れたボムの敵判定をなくす（倒した）
@@ -262,17 +269,23 @@ def main():
                 end = time.time()
                 clear_time = end - bgn #クリアタイム
                 # テキストを描画
-                clear_txt.blit([400, 400], scr)
+                clear_txt.blit([350, 300], scr)
+                pg.display.update()
+                time.sleep(1)
                 # テキスト生成（クリア）
                 time_txt = Text(None, 200, f"time:{round(clear_time)}", (0, 0, 0)) 
-                time_txt.blit([0, 0], scr)
+                time_txt.blit([600, 500], scr)
                 pg.display.update()
                 time.sleep(3)
                 ##
                 return
-
-
-
+        #時間を計測し、表示する
+        time_txt = Text(None, 100, "time:"+str(int(g_time)),(0,0,0))
+        time_txt.blit([50,30], scr)
+        g_time += 0.01
+        #HPを表示する
+        life_txt = Text(None, 100, "HP:"+str(int(life)),(0,0,0))
+        life_txt.blit([1300,30], scr)
         pg.display.update()
         clock.tick(1000)
 
