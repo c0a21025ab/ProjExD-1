@@ -131,28 +131,6 @@ class Bomb:
         self.blit(scr) 
 
 
-#銃クラス
-class Bullet:
-    def __init__(self, color, rad, vxy, xy):
-        self.sfc = pg.Surface((2*rad, 2*rad)) 
-        self.sfc.set_colorkey((0, 0, 0))
-        self.rad = rad 
-        self.color = color
-        pg.draw.circle(self.sfc, self.color, (self.rad, self.rad), self.rad)
-        self.rct = self.sfc.get_rect()
-        self.x, self.y = xy
-        self.rct.centerx = self.x
-        self.rct.centery = self.y
-        self.vx, self.vy = vxy
-
-    def blit(self, scr:Screen):
-        scr.sfc.blit(self.sfc, self.rct)
-
-    def update(self, scr:Screen):
-        self.rct.move_ip(self.vx, 0)
-        self.blit(scr)
-
-
 class Item:
     def __init__(self, color, rad, vxy, scr:Screen):
         self.sfc = pg.Surface((2*rad, 2*rad)) # 正方形の空のSurface
@@ -286,7 +264,6 @@ def main():
     SizeKey_list = [pg.K_RIGHT, pg.K_LEFT] #サイズ調整用キー
     KoukatonKey_list = [pg.K_0, pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8, pg.K_9] #画像変更用キー
     close_list = [pg.K_ESCAPE, pg.K_q] #ゲーム終了用キー
-    bullet_list = []
     
     num_dead_enem = 0         # 敵を倒した数をカウント
     fighting_time_left = 2000 # 戦闘モードの残り時間
@@ -311,9 +288,6 @@ def main():
                     for num in range(len(KoukatonKey_list)):
                         if press_key == KoukatonKey_list[num]:
                             kkt.koukaton_update(num, scr)
-                if press_key == pg.K_BACKSPACE: #押されたキーがbackspaceキーならば
-                    bullet = Bullet((0, 255, 0), 10, (1, 1), (kkt.x, kkt.y)) #球の生成
-                    bullet_list.append(bullet)
                 if press_key in close_list:
                     return 
 
