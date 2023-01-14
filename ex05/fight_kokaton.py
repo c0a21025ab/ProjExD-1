@@ -51,19 +51,6 @@ class Bird:
         self.src = self.sfc.get_rect()
         self.rct.center = 900, 400
 
-class Enemy:
-    def __init__(self,image,size,exy,scr:Screen):
-        self.enmy_sfc = pg.image.load(image)
-        self.enmy_sfc = pg.transform.rotozoom(self.enmy_sfc,0,size)
-        self.enmy_rct = self.enmy_sfc.get_rect()
-        self.enmy_rct.centerx = random.randint(0,scr.rct.width-10)
-        self.enmy_rct.centery = random.randint(0,scr.rct.height-10)
-        self.ex,self.ey = exy
-
-    def blit(self,scr:Screen):
-        scr.sfc.blit(self.enmy_sfc,self.enmy_rct)
-        
-
 class Bomb:
     def __init__(self, color, rad, vxy, scr:Screen):
         self.sfc = pg.Surface((2*rad, 2*rad)) # 正方形の空のSurface
@@ -167,13 +154,6 @@ def main():
         r = random.randint(30,50)
         bombs.append(Bomb(color, r, (vx, vy), scr))
 
-    enmys = []
-    for i in range(20):
-        sx = random.randint(100,1400)
-        sy = random.randint(100,800)
-        enmy = Enemy("fig/slime.png",0.1,(sx,sy),scr)
-        enmys.append(enmy)
-
     # 被弾こうかとん
     end_kkt = Bird("fig/bakuhatu.png", 2.0, (900,400))
     # end_kkt.scale((500, 500)) #サイズを変えると、位置がおかしくなってしまう
@@ -210,11 +190,11 @@ def main():
 
     # テキスト生成(こうかとんモードチェンジ時)
     fight_txt = Text(None, 200, "FIGHTING MODE!!", (255, 0, 0))
-    #時間を計測し、表示する
-    time_txt = Text("time:"+str(int(g_time)),True, (0,0,0))
-    #HPを表示する
-    hp_txt = Text("HP:"+str(int(life)),True, (0,0,0))
 
+    g_time = 0
+    
+    life = 999
+    
     # (new)こうかとんが爆弾に触れるとGAME OVER と表示させる
     # font = pg.font.Font(None, 200)
     # text = font.render("GAME OVER", True, (255,0,0))
@@ -223,10 +203,6 @@ def main():
     
     num_dead_enem = 0         # 敵を倒した数をカウント
     fighting_time_left = 2000 # 戦闘モードの残り時間
-    #時間を計測するbための変数
-    g_time = 0
-    #HPを表す変数
-    life = 999
 
     # 練習２
     while True:        
@@ -237,38 +213,23 @@ def main():
                 return
 
         kkt.update(scr)
-        for enmy in enmys:
-            enmy.blit(scr)
-            #enmy.update(scr)
-            if kkt.rct.colliderect(enmy.enmy_rct) and g_time > 2:#開始直後は無敵状態に
-                life -= 0.1
-                #HPが0になったら終了(0の表示が見えるようにするため-1未満とする)
-                if life < -1:#死んだらgameoverとtimeを順に表示
-                    text.blit([700, 300], scr)
-                    pg.display.update()
-                    time.sleep(1)
-                    Text.blit(time_txt, (700,400))
-                    pg.display.update()
-                    time.sleep(2)
-                    return
 
         for bomb in bombs:
             if bomb.enemy is True:
                 bomb.update(scr)
-            if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
-                life -= 5
-                if life > -1:
-                    # こうかとんが爆弾に触れた位置で画像を切り替える
+            if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True) and g_time > 2: #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
+                # こうかとんが爆弾に触れた位置で画像を切り替える
+                life -= 9
+                if life < 0:
                     end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                     end_kkt.rct.centery = kkt.rct.centery
                     end_kkt.blit(scr)
                     # テキストを描画
-                    text.blit([700, 300], scr)
+                    text.blit([400, 300], scr)
+                    time_txt = Text(None, 200, "time:"+str(int(g_time)), (0, 0, 0)) 
+                    time_txt.blit([600, 500], scr)
                     pg.display.update()
-                    time.sleep(1)
-                    text.blit(time_txt,(700,400))
-                    pg.display.update()
-                    time.sleep(2)
+                    time.sleep(3)
                     return
             # こうかとんが敵を倒す
             elif kkt.rct.colliderect(bomb.rct) and (kkt.fight is True) and (bomb.enemy is True): #戦闘モード時に爆弾に触れると
@@ -308,23 +269,23 @@ def main():
                 end = time.time()
                 clear_time = end - bgn #クリアタイム
                 # テキストを描画
-                clear_txt.blit([400, 400], scr)
+                clear_txt.blit([350, 300], scr)
+                pg.display.update()
+                time.sleep(1)
                 # テキスト生成（クリア）
                 time_txt = Text(None, 200, f"time:{round(clear_time)}", (0, 0, 0)) 
-                time_txt.blit([0, 0], scr)
+                time_txt.blit([600, 500], scr)
                 pg.display.update()
                 time.sleep(3)
                 ##
                 return
         #時間を計測し、表示する
-        
-        text.blit(time_txt, (50,30))
+        time_txt = Text(None, 100, "time:"+str(int(g_time)),(0,0,0))
+        time_txt.blit([50,30], scr)
         g_time += 0.01
         #HPを表示する
-        scr.sfc.blit(hp_txt, (1300,30))
-
-
-
+        life_txt = Text(None, 100, "HP:"+str(int(life)),(0,0,0))
+        life_txt.blit([1300,30], scr)
         pg.display.update()
         clock.tick(1000)
 
