@@ -25,10 +25,13 @@ class Bird:
     }
 
     def __init__(self, img_path, ratio, xy):
+        self.ratio = ratio
         self.sfc = pg.image.load(img_path)
-        self.sfc = pg.transform.rotozoom(self.sfc, 0, ratio)
+        self.sfc = pg.transform.rotozoom(self.sfc, 0, self.ratio)
         self.rct = self.sfc.get_rect()
         self.rct.center = xy
+        self.x = self.rct.centerx
+        self.y = self.rct.centery
         self.fight = False # 戦闘モード
 
     def blit(self, scr:Screen):
@@ -43,6 +46,8 @@ class Bird:
             if check_bound(self.rct, scr.rct) != (+1, +1):
                 self.rct.centerx -= delta[0]
                 self.rct.centery -= delta[1]
+        self.x = self.rct.centerx
+        self.y = self.rct.centery
         self.blit(scr)            
 
     # 画像のサイズを変える
@@ -50,15 +55,26 @@ class Bird:
         self.sfc = pg.transform.scale(self.sfc, size)
         self.src = self.sfc.get_rect()
         self.rct.center = 900, 400
+   
+    def koukaton_update(self, press_key, scr:Screen): #こうかとんの画像のアップデート(辻村)
+        self.sfc = pg.image.load(f"fig/{press_key}.png") #押したキー(0~9)に対応した画像を読み込む
+        self.sfc = pg.transform.rotozoom(self.sfc, 0, self.ratio) #サイズは初期状態と同じ
+        self.rct = self.sfc.get_rect()
+        self.rct.center = (self.x, self.y) #こうかとんの現在地に座標を合わせる 
+        self.blit(scr)
 
 class Bomb:
     def __init__(self, color, rad, vxy, scr:Screen):
         self.sfc = pg.Surface((2*rad, 2*rad)) # 正方形の空のSurface
         self.sfc.set_colorkey((0, 0, 0))
-        pg.draw.circle(self.sfc, color, (rad, rad), rad)
+        self.rad = rad
+        self.color = color
+        pg.draw.circle(self.sfc, self.color, (self.rad, self.rad), self.rad)
         self.rct = self.sfc.get_rect()
         self.rct.centerx = random.randint(0, scr.rct.width)
         self.rct.centery = random.randint(0, scr.rct.height)
+        self.x = self.rct.centerx
+        self.y = self.rct.centery
         self.vx, self.vy = vxy
         self.enemy = True #敵かどうか
 
@@ -70,7 +86,56 @@ class Bomb:
         yoko, tate = check_bound(self.rct, scr.rct)
         self.vx *= yoko
         self.vy *= tate
+        self.x += self.vx
+        self.y += self.vy
         self.blit(scr)
+
+    def speed_update(self, press_key): #速度のアップデート(辻村)
+        base_speed = 1
+        #上キーを押すと(速度が早くなる)
+        if press_key == pg.K_w and self.vx == 0: #動いていない場合
+            self.vx = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
+        elif press_key == pg.K_w and self.vx > 0: #x方向：正
+            self.vx += base_speed
+        elif press_key == pg.K_w and self.vx < 0: #x方向：負
+            self.vx -= base_speed
+        if press_key == pg.K_w and self.vy == 0: #動いていない場合
+            self.vy = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
+        elif press_key == pg.K_w and self.vy > 0: #y方向：正 
+            self.vy += base_speed
+        elif press_key == pg.K_w and self.vy < 0: #y方向：負 
+            self.vy -= base_speed        
+
+        #下キーを押すと、かつ速度の絶対値が0よりも大きければ(速度が遅くなる)
+        if press_key == pg.K_s:
+            if self.vx == 0: 
+                pass
+            elif self.vx > 0 :#x方向：正
+                self.vx -= base_speed
+            elif self.vx < 0 :#x方向：負
+                self.vx += base_speed
+            if self.vy == 0:
+                pass
+            elif self.vy > 0: #y方向：正
+                self.vy -= base_speed
+            elif self.vy < 0: #y方向：負 
+                self.vy += base_speed
+    
+    def size_update(self, press_key, scr:Screen): #サイズのアップデート(辻村)
+        #右キーを押す、かつ半径が0以上ならば(サイズが大きくなる)
+        if press_key == pg.K_d:
+            self.rad += 6
+        #左キーを押す、かつ半径が初期値よりも大きいならば(サイズが小さくなる)
+        if press_key == pg.K_a and self.rad > 6:
+            self.rad -= 6 
+        self.sfc = pg.Surface((2*self.rad, 2*self.rad)) 
+        self.sfc.set_colorkey((0, 0, 0))
+        pg.draw.circle(self.sfc, self.color, (self.rad, self.rad), self.rad)
+        self.rct = self.sfc.get_rect()
+        self.rct.centerx = self.x
+        self.rct.centery = self.y
+        self.blit(scr) 
+
 
 class Item:
     def __init__(self, color, rad, vxy, scr:Screen):
@@ -200,6 +265,11 @@ def main():
     # text = font.render("GAME OVER", True, (255,0,0))
     # scrn_sfc.blit(text, [400, 400])
 
+    #辻村
+    SpeedKey_list = [pg.K_w, pg.K_s] #速度調整用キー
+    SizeKey_list = [pg.K_d, pg.K_a] #サイズ調整用キー
+    KoukatonKey_list = [pg.K_0, pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8, pg.K_9] #画像変更用キー
+    close_list = [pg.K_ESCAPE, pg.K_q] #ゲーム終了用キー
     
     num_dead_enem = 0         # 敵を倒した数をカウント
     fighting_time_left = 2000 # 戦闘モードの残り時間
@@ -211,6 +281,21 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+            #辻村
+            if event.type == pg.KEYDOWN: #キーが押されたら
+                press_key = event.key 
+                if press_key in SpeedKey_list: #押されたキーが速度調整用のキーならば
+                    for bakudan in bombs:
+                        bakudan.speed_update(press_key) #それぞれの爆弾のスピードを変更
+                if press_key in SizeKey_list: #押されたキーがサイズ調整用のキーならば
+                    for bakudan in bombs:
+                        bakudan.size_update(press_key, scr) #それぞれの爆弾のサイズを変更
+                if press_key in KoukatonKey_list: #押されたキーがこうかとんの画像変更用キーならば
+                    for num in range(len(KoukatonKey_list)):
+                        if press_key == KoukatonKey_list[num]:
+                            kkt.koukaton_update(num, scr)
+                if press_key in close_list:
+                    return 
 
         kkt.update(scr)
 
