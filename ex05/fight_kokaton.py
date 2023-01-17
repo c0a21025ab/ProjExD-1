@@ -310,7 +310,7 @@ def main():
                 # こうかとんが爆弾に触れた位置で画像を切り替える
                 life -= 9
                 text_hit = Text(None, 160, "Hit!!", (0, 0, 0))
-                text_hit.blit([600, 380], scr)
+                text_hit.blit([kkt.x, kkt.y], scr)
                 if life < 0:
                     end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                     end_kkt.rct.centery = kkt.rct.centery
