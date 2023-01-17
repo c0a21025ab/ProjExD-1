@@ -2,6 +2,7 @@ import pygame as pg
 import random
 import sys
 import time
+import os
 
 
 class Screen:
@@ -91,12 +92,10 @@ class Bomb:
         self.blit(scr)
 
     def speed_update(self, press_key): #速度のアップデート(辻村)
-        #上キーを押すと(速度が早くなる)
         if press_key == pg.K_w:
             self.vx = plus_speed(self.vx)
-            self.vy = plus_speed(self.vx) 
-        #下キーを押すと(速度が遅くなる)
-        if press_key == pg.K_s:
+            self.vy = plus_speed(self.vy)
+        elif press_key == pg.K_s:
             self.vx = minus_speed(self.vx)
             self.vy = minus_speed(self.vy)
     
@@ -164,35 +163,52 @@ def check_clear(num_dead_enem, total_num_enem): # (死んだ敵の数, 敵の総
     else:
         return False
 
-#速度の算出(辻村)
+
+def load_sound(file): #音楽が流れる
+    if not pg.mixer:
+        return None
+    file = os.path.join(main_dir, "data", file)
+    try:
+        sound = pg.mixer.Sound(file)
+        return sound
+    except pg.error:
+        print("Warning, unable to load, %s" % file)
+    return None
+
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+
+base_speed = 1
+#速度の算出
 def plus_speed(speed):
-    base_speed = 1
     if speed == 0:
         speed = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
     elif speed > 0:
         speed += base_speed
-    elif speed < 0:
+    elif speed < 0: 
         speed -= base_speed
     return speed
 
 def minus_speed(speed):
-    base_speed = 1
     if speed == 0:
-        speed = 0
-    elif speed < 0:
-        speed += base_speed
+        pass
     elif speed > 0:
         speed -= base_speed
+    elif speed < 0:
+        speed += base_speed
     return speed
 
-
-
 def main():
+    if pg.mixer:
+        music = os.path.join(main_dir, "data", "house_lo.wav")
+        pg.mixer.music.load(music)
+        pg.mixer.music.play(-1)
+    clock =pg.time.Clock()
+    bgn = time.time()
     clock =pg.time.Clock()
     bgn = time.time()
 
     # 練習１
-    scr = Screen("頑張れこうかとん！！！", (1600,900), "fig/pg_bg.jpg")
+    scr = Screen("逃げろ！こうかとん", (1600,900), "fig/pg_bg.jpg")
 
     # 練習３
     kkt = Bird("fig/5.png", 2.0, (900,400))
@@ -341,15 +357,18 @@ def main():
 
         # 敵をすべて消した時の処理
         if check_clear(num_dead_enem, total_num_enem): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
+                end = time.time()
+                clear_time = end - bgn #クリアタイム
                 # テキストを描画
                 clear_txt.blit([350, 300], scr)
                 pg.display.update()
                 time.sleep(1)
                 # テキスト生成（クリア）
-                time_txt = Text(None, 200, f"time:{round(g_time)}", (0, 0, 0)) 
+                time_txt = Text(None, 200, f"time:{round(clear_time)}", (0, 0, 0)) 
                 time_txt.blit([600, 500], scr)
                 pg.display.update()
                 time.sleep(3)
+                ##
                 return
         #時間を計測し、表示する
         time_txt = Text(None, 100, "time:"+str(int(g_time)),(0,0,0))
