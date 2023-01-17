@@ -91,34 +91,14 @@ class Bomb:
         self.blit(scr)
 
     def speed_update(self, press_key): #速度のアップデート(辻村)
-        base_speed = 1
         #上キーを押すと(速度が早くなる)
-        if (press_key == pg.K_w and self.vx == 0) or press_key == True: #動いていない場合,もしくは敵を倒した場合
-            self.vx = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
-        elif press_key == pg.K_w and self.vx > 0: #x方向：正
-            self.vx += base_speed
-        elif press_key == pg.K_w and self.vx < 0: #x方向：負
-            self.vx -= base_speed
-        if press_key == pg.K_w and self.vy == 0: #動いていない場合
-            self.vy = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
-        elif press_key == pg.K_w and self.vy > 0: #y方向：正 
-            self.vy += base_speed
-        elif press_key == pg.K_w and self.vy < 0: #y方向：負 
-            self.vy -= base_speed    
-        
-        #下キーを押すと、かつ速度の絶対値が0よりも大きければ(速度が遅くなる)
-        if press_key == pg.K_s and self.vx == 0: 
-            pass
-        elif press_key == pg.K_s and self.vx > 0 :#x方向：正
-            self.vx -= base_speed
-        elif press_key == pg.K_s and self.vx < 0 :#x方向：負
-            self.vx += base_speed
-        if press_key == pg.K_s and self.vy == 0:
-            pass
-        elif press_key == pg.K_s and self.vy > 0: #y方向：正
-            self.vy -= base_speed
-        elif press_key == pg.K_s and self.vy < 0: #y方向：負 
-            self.vy += base_speed
+        if press_key == pg.K_w:
+            self.vx = plus_speed(self.vx)
+            self.vy = plus_speed(self.vx) 
+        #下キーを押すと(速度が遅くなる)
+        if press_key == pg.K_s:
+            self.vx = minus_speed(self.vx)
+            self.vy = minus_speed(self.vy)
     
     def size_update(self, scr:Screen): #サイズのアップデート(辻村)
         self.rad += random.randint(-1, 1)
@@ -184,7 +164,26 @@ def check_clear(num_dead_enem, total_num_enem): # (死んだ敵の数, 敵の総
     else:
         return False
 
+#速度の算出(辻村)
+def plus_speed(speed):
+    base_speed = 1
+    if speed == 0:
+        speed = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
+    elif speed > 0:
+        speed += base_speed
+    elif speed < 0:
+        speed -= base_speed
+    return speed
 
+def minus_speed(speed):
+    base_speed = 1
+    if speed == 0:
+        speed = 0
+    elif speed < 0:
+        speed += base_speed
+    elif speed > 0:
+        speed -= base_speed
+    return speed
 
 
 
