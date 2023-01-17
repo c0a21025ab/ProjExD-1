@@ -196,7 +196,7 @@ def main():
     scr = Screen("逃げろ！こうかとん", (1600,900), "fig/pg_bg.jpg")
 
     # 練習３
-    kkt = Bird("fig/6.png", 2.0, (900,400))
+    kkt = Bird("fig/5.png", 2.0, (900,400))
     kkt.update(scr)
 
     # 練習５
@@ -262,7 +262,6 @@ def main():
 
     #辻村
     SpeedKey_list = [pg.K_w, pg.K_s] #速度調整用キー
-    KoukatonKey_list = [pg.K_0, pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8, pg.K_9] #画像変更用キー
     close_list = [pg.K_ESCAPE, pg.K_q] #ゲーム終了用キー
     
     num_dead_enem = 0         # 敵を倒した数をカウント
@@ -281,13 +280,6 @@ def main():
                 if press_key in SpeedKey_list: #押されたキーが速度調整用のキーならば
                     for bakudan in bombs:
                         bakudan.speed_update(press_key) #それぞれの爆弾のスピードを変更
-                #if press_key in SizeKey_list: #押されたキーがサイズ調整用のキーならば
-                #    for bakudan in bombs:
-                #        bakudan.size_update(press_key, scr) #それぞれの爆弾のサイズを変更
-                if press_key in KoukatonKey_list: #押されたキーがこうかとんの画像変更用キーならば
-                    for num in range(len(KoukatonKey_list)):
-                        if press_key == KoukatonKey_list[num]:
-                            kkt.koukaton_update(num, scr)
                 if press_key in close_list:
                     return
 
@@ -331,6 +323,7 @@ def main():
             fighting_time_left -= 1
             fight_time_txt = Text(None, 150, "fight", (255, 0, 0)) 
             fight_time_txt.blit([650, 30], scr)
+            kkt.koukaton_update(9, scr)
             if fighting_time_left % 10000 == 0:
                 pg.display.update()
 
@@ -342,6 +335,8 @@ def main():
                 vx = random.choice([-1, +1])
                 vy = random.choice([-1, +1])
                 items.append(Item(color, 10, (vx, vy), scr))
+                #こうかとんの画像チェンジ
+                kkt.koukaton_update(5, scr)
 
 
 
