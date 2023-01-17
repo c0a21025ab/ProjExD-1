@@ -2,6 +2,7 @@ import pygame as pg
 import random
 import sys
 import time
+import os
 
 
 class Screen:
@@ -185,10 +186,26 @@ def check_clear(num_dead_enem, total_num_enem): # (死んだ敵の数, 敵の総
         return False
 
 
+def load_sound(file): #音楽が流れる
+    if not pg.mixer:
+        return None
+    file = os.path.join(main_dir, "data", file)
+    try:
+        sound = pg.mixer.Sound(file)
+        return sound
+    except pg.error:
+        print("Warning, unable to load, %s" % file)
+    return None
 
-
+main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 def main():
+    if pg.mixer:
+        music = os.path.join(main_dir, "data", "house_lo.wav")
+        pg.mixer.music.load(music)
+        pg.mixer.music.play(-1)
+    clock =pg.time.Clock()
+    bgn = time.time()
     clock =pg.time.Clock()
     bgn = time.time()
 
