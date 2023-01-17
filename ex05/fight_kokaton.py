@@ -193,7 +193,7 @@ def main():
     bgn = time.time()
 
     # 練習１
-    scr = Screen("逃げろ！こうかとん", (1600,900), "fig/pg_bg.jpg")
+    scr = Screen("頑張れこうかとん！！！", (1600,900), "fig/pg_bg.jpg")
 
     # 練習３
     kkt = Bird("fig/5.png", 2.0, (900,400))
