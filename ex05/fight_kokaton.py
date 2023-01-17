@@ -307,8 +307,8 @@ def main():
             if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True) and g_time > 2: #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
                 # こうかとんが爆弾に触れた位置で画像を切り替える
                 life -= 9
-                text_hit = Text(None, 160, "Hit!!", (0, 0, 0))
-                text_hit.blit([kkt.x, kkt.y], scr)
+                text_hit = Text(None, 160, "Hit!!", (0, 0, 0))#岡本
+                text_hit.blit([kkt.x, kkt.y], scr)#岡本
                 if life < 0:
                     end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                     end_kkt.rct.centery = kkt.rct.centery
