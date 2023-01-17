@@ -293,7 +293,7 @@ def main():
                 # こうかとんが爆弾に触れた位置で画像を切り替える
                 life -= 9
                 text_hit = Text(None, 160, "Hit!!", (0, 0, 0))
-                text_hit.blit([600, 380], scr)
+                text_hit.blit([kkt.x, kkt.y], scr)
                 if life < 0:
                     end_kkt.rct.centerx = kkt.rct.centerx # こうかとんの位置と等しくする
                     end_kkt.rct.centery = kkt.rct.centery
@@ -342,18 +342,15 @@ def main():
 
         # 敵をすべて消した時の処理
         if check_clear(num_dead_enem, total_num_enem): #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
-                end = time.time()
-                clear_time = end - bgn #クリアタイム
                 # テキストを描画
                 clear_txt.blit([350, 300], scr)
                 pg.display.update()
                 time.sleep(1)
                 # テキスト生成（クリア）
-                time_txt = Text(None, 200, f"time:{round(clear_time)}", (0, 0, 0)) 
+                time_txt = Text(None, 200, f"time:{round(g_time)}", (0, 0, 0)) 
                 time_txt.blit([600, 500], scr)
                 pg.display.update()
                 time.sleep(3)
-                ##
                 return
         #時間を計測し、表示する
         time_txt = Text(None, 100, "time:"+str(int(g_time)),(0,0,0))
