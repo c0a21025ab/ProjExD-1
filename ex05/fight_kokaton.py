@@ -93,7 +93,7 @@ class Bomb:
     def speed_update(self, press_key): #速度のアップデート(辻村)
         base_speed = 1
         #上キーを押すと(速度が早くなる)
-        if press_key == pg.K_w and self.vx == 0: #動いていない場合
+        if (press_key == pg.K_w and self.vx == 0) or press_key == True: #動いていない場合,もしくは敵を倒した場合
             self.vx = base_speed*random.choice([-3, -2, -1, 0, 1, 2, 3])
         elif press_key == pg.K_w and self.vx > 0: #x方向：正
             self.vx += base_speed
@@ -104,30 +104,26 @@ class Bomb:
         elif press_key == pg.K_w and self.vy > 0: #y方向：正 
             self.vy += base_speed
         elif press_key == pg.K_w and self.vy < 0: #y方向：負 
-            self.vy -= base_speed        
-
+            self.vy -= base_speed    
+        
         #下キーを押すと、かつ速度の絶対値が0よりも大きければ(速度が遅くなる)
-        if press_key == pg.K_s:
-            if self.vx == 0: 
-                pass
-            elif self.vx > 0 :#x方向：正
-                self.vx -= base_speed
-            elif self.vx < 0 :#x方向：負
-                self.vx += base_speed
-            if self.vy == 0:
-                pass
-            elif self.vy > 0: #y方向：正
-                self.vy -= base_speed
-            elif self.vy < 0: #y方向：負 
-                self.vy += base_speed
+        if press_key == pg.K_s and self.vx == 0: 
+            pass
+        elif press_key == pg.K_s and self.vx > 0 :#x方向：正
+            self.vx -= base_speed
+        elif press_key == pg.K_s and self.vx < 0 :#x方向：負
+            self.vx += base_speed
+        if press_key == pg.K_s and self.vy == 0:
+            pass
+        elif press_key == pg.K_s and self.vy > 0: #y方向：正
+            self.vy -= base_speed
+        elif press_key == pg.K_s and self.vy < 0: #y方向：負 
+            self.vy += base_speed
     
-    def size_update(self, press_key, scr:Screen): #サイズのアップデート(辻村)
-        #右キーを押す、かつ半径が0以上ならば(サイズが大きくなる)
-        if press_key == pg.K_d:
-            self.rad += 6
-        #左キーを押す、かつ半径が初期値よりも大きいならば(サイズが小さくなる)
-        if press_key == pg.K_a and self.rad > 6:
-            self.rad -= 6 
+    def size_update(self, scr:Screen): #サイズのアップデート(辻村)
+        self.rad += random.randint(-1, 1)
+        if self.rad <= 0:
+            self.rad = 1
         self.sfc = pg.Surface((2*self.rad, 2*self.rad)) 
         self.sfc.set_colorkey((0, 0, 0))
         pg.draw.circle(self.sfc, self.color, (self.rad, self.rad), self.rad)
@@ -225,12 +221,11 @@ def main():
 
     # こうかとん強化アイテム生成
     items = []
-
-    for i in range(2):
-        color = "white"
-        vx = random.choice([-1, +1])
-        vy = random.choice([-1, +1])
-        items.append(Item(color, 10, (vx, vy), scr))
+    #for i in range(2):
+    color = "white"
+    vx = random.choice([-1, +1])
+    vy = random.choice([-1, +1])
+    items.append(Item(color, 10, (vx, vy), scr))
     
 
     kkt.update(scr)
@@ -267,12 +262,11 @@ def main():
 
     #辻村
     SpeedKey_list = [pg.K_w, pg.K_s] #速度調整用キー
-    SizeKey_list = [pg.K_d, pg.K_a] #サイズ調整用キー
     KoukatonKey_list = [pg.K_0, pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8, pg.K_9] #画像変更用キー
     close_list = [pg.K_ESCAPE, pg.K_q] #ゲーム終了用キー
     
     num_dead_enem = 0         # 敵を倒した数をカウント
-    fighting_time_left = 2000 # 戦闘モードの残り時間
+    fighting_time_left = 200 # 戦闘モードの残り時間
 
     # 練習２
     while True:        
@@ -287,21 +281,22 @@ def main():
                 if press_key in SpeedKey_list: #押されたキーが速度調整用のキーならば
                     for bakudan in bombs:
                         bakudan.speed_update(press_key) #それぞれの爆弾のスピードを変更
-                if press_key in SizeKey_list: #押されたキーがサイズ調整用のキーならば
-                    for bakudan in bombs:
-                        bakudan.size_update(press_key, scr) #それぞれの爆弾のサイズを変更
+                #if press_key in SizeKey_list: #押されたキーがサイズ調整用のキーならば
+                #    for bakudan in bombs:
+                #        bakudan.size_update(press_key, scr) #それぞれの爆弾のサイズを変更
                 if press_key in KoukatonKey_list: #押されたキーがこうかとんの画像変更用キーならば
                     for num in range(len(KoukatonKey_list)):
                         if press_key == KoukatonKey_list[num]:
                             kkt.koukaton_update(num, scr)
                 if press_key in close_list:
-                    return 
+                    return
 
         kkt.update(scr)
 
         for bomb in bombs:
             if bomb.enemy is True:
                 bomb.update(scr)
+                bomb.size_update(scr)
             if kkt.rct.colliderect(bomb.rct) and (kkt.fight is False) and (bomb.enemy is True) and g_time > 2: #こうかとんが非戦闘モードかつ爆弾の敵判定がTrueなら
                 # こうかとんが爆弾に触れた位置で画像を切り替える
                 life -= 9
@@ -332,20 +327,19 @@ def main():
         # 戦闘モードこうかとん残り時間処理
         if kkt.fight is True:
             fighting_time_left -= 1
-            # fight_time_txt = Text(None, 200, f"fight:{fighting_time_left}", (0, 0, 0)) 
-            # fight_time_txt.blit([0, 500], scr)
-            # if fighting_time_left % 10000 == 0:
-            #     pg.display.update()
+            fight_time_txt = Text(None, 150, "fight", (255, 0, 0)) 
+            fight_time_txt.blit([650, 30], scr)
+            if fighting_time_left % 10000 == 0:
+                pg.display.update()
 
             if fighting_time_left == 0: #　もし戦闘モードが終わったら
                 kkt.fight = False
+                fighting_time_left = 200
                 # 強化アイテム生成
                 color = "white"
                 vx = random.choice([-1, +1])
                 vy = random.choice([-1, +1])
-                item = Item(color, 10, (vx, vy), scr)
-                item.update(scr)
-                print("アイテム生成")
+                items.append(Item(color, 10, (vx, vy), scr))
 
 
 
@@ -367,7 +361,7 @@ def main():
         #時間を計測し、表示する
         time_txt = Text(None, 100, "time:"+str(int(g_time)),(0,0,0))
         time_txt.blit([50,30], scr)
-        g_time += 0.01
+        g_time += 0.01 
         #HPを表示する
         life_txt = Text(None, 100, "HP:"+str(int(life)),(0,0,0))
         life_txt.blit([1300,30], scr)
